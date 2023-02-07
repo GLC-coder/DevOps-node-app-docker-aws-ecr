@@ -1,4 +1,4 @@
-## Docker Compose - Run multiple Docker containers
+## Dockerize Nodejs application and push to private Docker registry: AWS ECR
 
 This app shows a simple user profile app set up using
 
@@ -10,52 +10,63 @@ All components are docker-based
 
 ### Technologies used:
 
-Docker-compose, Node.js MongoDB, MongoExpress,HTML, CSS, JavaScript
+Docker, Node.js,HTML, CSS, JavaScript, AWS ECR
 
 ### Project Description:
 
-1- Write Docker Compose file to run MongoDB and MongoExpress containers.
+1- Write Dockerfile to build a Docker image for a Nodejs application
 
-2- Run Nodejs application in Docker container and connect to MongoDB database container locally.
+2- Create private Docker registry on AWS (Amazon ECR)
 
-3- Run MongoExpress container as a UI of the MongoDB database.
+3- Push Docker image to this private repository
 
-### With Docker Compose
+### With Docker
 
 #### To start the application
 
-Step 1: Create the compose yaml file
+Step 1: Create Dockerfile
 
-![Alt text](app/images/compose-yaml.png?raw=true)
+![Alt text](app/images/dockerfile.png?raw=true)
 
-Step 2: start mongodb and mongo-express by docker compose
+Step 2: Create a image repository at AWS ECR
 
-    docker compose -f docker-compose.yaml up
+![Alt text](app/images/create-repository.png?raw=true)
+Step 3: docker login to AWS ECR using the AWS CLI
+![Alt text](app/images/view-docker-login-command.png?raw=true)
+![Alt text](app/images/docker-login-command.png?raw=true)
 
-_You can access the mongo-express under localhost:8080 from your browser_
+Step 4: Build node-app image with version
 
-Step 3: in mongo-express UI - create a new database "my-db"
+    build build -t node-app:1.0 .
 
-Step 4: in mongo-express UI - create a new collection "users" in the database "my-db"
+Step 5: Re-tag the image with repository domain and repository image name
 
-Step 5: Go to `app` directory of project
+    build tag node-app:1.0 118381122830.dkr.ecr.ap-southeast-2.amazonaws.com/node-app:1.0
 
-    cd app
+![Alt text](app/images/re-tag-docker-image.png?raw=true)
 
-Step 8: Add a " .env" file into the app directory of project and fill the environment variable
-![Alt text](app/images/env_file.png?raw=true)
-Assign "my-app" to DATABASE in .env file
-Assign "users" to COLLECTION in .env file
+Step 6: Push image to private AWS ECR
 
-Step 9: Start your nodejs application locally inside the app directory.
+    build push 118381122830.dkr.ecr.ap-southeast-2.amazonaws.com/node-app:1.0
 
-    npm install
-    node server.js
+![Alt text](app/images/push-to-aws-ecr.png?raw=true)
 
-Step 10: Access you nodejs application UI from browser
+![Alt text](app/images/image1.0.png?raw=true)
 
-    http://localhost:3000
+Step 7: update the Dockerfile
 
-Step 11: to Stop mongodb and mongo-express containers by docker compose
+![Alt text](app/images/update-dockerfile.png?raw=true)
 
-    docker compose -f docker-compose.yaml down
+Step 8: Rebuild the image and push it to AWS ECR
+
+     build -t node-app:1.1 .
+
+![image](app/images/rebuild.png?raw=true)
+
+     build tag node-app:1.1 118381122830.dkr.ecr.ap-southeast-2.amazonaws.com/node-app:1.1
+
+![image](app/images/re-tag-docker-image.png?raw=true)
+
+     build push 118381122830.dkr.ecr.ap-southeast-2.amazonaws.com/node-app:1.1
+
+![image](app/images/image1.1.png?raw=true)
